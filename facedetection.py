@@ -32,7 +32,7 @@ def are_eyes_visible(img):
 def camera_loop():
     global latest_result
     cap = cv2.VideoCapture(0)  # Use default camera
-    
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -43,6 +43,7 @@ def camera_loop():
         
     
     cap.release()
+
 
 @app.route('/is_looking', methods=['GET'])
 def is_looking():
