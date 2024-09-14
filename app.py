@@ -42,6 +42,7 @@ def face_detection_loop():
         latest_result = are_eyes_visible(frame)
         print(f"LOOKING: {latest_result}")
 
+
     cap.release()
 
 @app.route('/face_detection', methods=['GET'])
@@ -50,9 +51,9 @@ def get_latest_result():
 
 
 # starting thread
-# camera_thread = threading.Thread(target=face_detection_loop)
-# camera_thread.daemon = True  # Set as a daemon thread so it will close when the main program exits
-# camera_thread.start()
+camera_thread = threading.Thread(target=face_detection_loop)
+camera_thread.daemon = True  # Set as a daemon thread so it will close when the main program exits
+camera_thread.start()
 # ----- End of facedetection.py -----
 
 
