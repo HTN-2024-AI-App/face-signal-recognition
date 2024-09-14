@@ -10,10 +10,6 @@ import json
 from openai import OpenAI
 
 
-# Load pre-trained Haar cascades for face and eye detection
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
-
 # Function to encode the image
 def encode_image(image_array):
     _, buffer = cv2.imencode('.jpg', image_array)
@@ -53,22 +49,6 @@ def capture_and_query_chatgpt(prompt, image_base64, model="gpt-4o", max_tokens=3
         return f"Error: {str(e)}"
 
 
-def are_eyes_visible(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    # Detect faces in the image
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-    
-    # Loop through each face and check for eyes
-    for (x, y, w, h) in faces:
-        roi_gray = gray[y:y+h, x:x+w]
-        eyes = eye_cascade.detectMultiScale(roi_gray)
-        
-        if len(eyes) > 0:
-            return True  # Eyes detected
-    
-    return False  # No eyes detected
-
 def query_groq(prompt, base64_image):
 
     client = Groq()
@@ -102,7 +82,7 @@ def query_groq(prompt, base64_image):
 
     return response_json
 
-def camera_loop():
+def gesture_loop():
     global latest_result
     cap = cv2.VideoCapture(0)  # Use default camera
 
@@ -129,4 +109,4 @@ def camera_loop():
 
 
 if __name__ == "__main__": 
-    camera_loop()
+    gesture_loop()
