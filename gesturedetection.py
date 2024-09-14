@@ -10,6 +10,9 @@ import json
 from openai import OpenAI
 
 
+
+latest_result_2 = False
+
 # Function to encode the image
 def encode_image(image_array):
     _, buffer = cv2.imencode('.jpg', image_array)
@@ -83,7 +86,7 @@ def query_groq(prompt, base64_image):
     return response_json
 
 def gesture_loop():
-    global latest_result
+    global latest_result_2
     cap = cv2.VideoCapture(0)  # Use default camera
 
 
@@ -95,18 +98,23 @@ def gesture_loop():
             break
         
         # Show the image in a window
-        cv2.imshow('Camera Feed', frame)
+        # cv2.imshow('Camera Feed', frame)
         
         # Capture and query Groq
         base64_image = encode_image(frame)
-        latest_result = capture_and_query_chatgpt(prompt, base64_image)
-        print(latest_result)
+        latest_result_2 = capture_and_query_chatgpt(prompt, base64_image)
+        print(latest_result_2)
 
     
     cap.release()
     cv2.destroyAllWindows()
 
 
+@app.route('/praying', methods=['GET'])
+def get_latest_result_2():
+    return jsonify({"res": latest_result_2})
+
 
 if __name__ == "__main__": 
+    from app import app
     gesture_loop()

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import threading
+from flask import Flask, jsonify
+from app import app
 
 # Load pre-trained Haar cascades for face and eye detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -33,10 +35,21 @@ def face_detection_loop():
 
     cap.release()
 
+@app.route('/face_detection', methods=['GET'])
+def get_latest_result():
+    return jsonify({"res": latest_result})
+
+
+# starting thread
+camera_thread = threading.Thread(target=face_detection_loop)
+camera_thread.daemon = True  # Set as a daemon thread so it will close when the main program exits
+camera_thread.start()
+
+
 
 if __name__ == "__main__":
     # Start the camera loop in a separate thread
-    camera_thread = threading.Thread(target=camera_loop)
+    camera_thread = threading.Thread(target=face_detection_loop)
     camera_thread.daemon = True  # Set as a daemon thread so it will close when the main program exits
     camera_thread.start()
 
