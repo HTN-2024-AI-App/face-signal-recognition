@@ -7,6 +7,7 @@ import os
 import time
 import openai
 import json
+from openai import OpenAI
 
 
 # Load pre-trained Haar cascades for face and eye detection
@@ -17,6 +18,39 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 def encode_image(image_array):
     _, buffer = cv2.imencode('.jpg', image_array)
     return base64.b64encode(buffer).decode('utf-8')
+
+def capture_and_query_chatgpt(prompt, image_base64, model="gpt-4o", max_tokens=300):
+    # Initialize the OpenAI client
+    client = OpenAI()
+
+    # Prepare the messages for the API request
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image_base64}"
+                    }
+                }
+            ]
+        }
+    ]
+
+    try:
+        # Send the request to the ChatGPT API
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens
+        )
+
+        # Return the content of the response
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 def are_eyes_visible(img):
@@ -85,12 +119,8 @@ def camera_loop():
         
         # Capture and query Groq
         base64_image = encode_image(frame)
-        latest_result = query_groq(prompt, base64_image)
+        latest_result = capture_and_query_chatgpt(prompt, base64_image)
         print(latest_result)
-        latest_result = are_eyes_visible(frame)
-        print(latest_result)
-
-        time.sleep(0.5)
 
     
     cap.release()
